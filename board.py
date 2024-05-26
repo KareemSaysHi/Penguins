@@ -117,3 +117,8 @@ class Board:
             nl.append(self.find_hex_from_coordinates(piece.q + thing[0], piece.r + thing[1], piece.s + thing[2]))
 
         return nl
+
+    def penguinOnBoard(self):
+        if self.find_hex_from_coordinates(0, 0, 0) == None:
+            return False
+        return True

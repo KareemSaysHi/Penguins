@@ -88,42 +88,74 @@ def start_penguins(surface):
     
     return board
 
-'''def displayText(surface):
+def displayText(surface, string):
     fontObj = pygame.font.Font(None, 32)
-    textSufaceObj = fontObj.render('Blue turn', True, (0, 0, 0), None)
+    textSufaceObj = fontObj.render(string, True, (0, 0, 0), None)
     surface.blit(textSufaceObj, (100, 100))
-    pygame.display.flip()'''
+    pygame.display.flip()
 
-def run_loop(screen, board):
+def run_loop(screen, board, game):
     # Main loop to keep the window open
     running = True
     while running:
 
-        for event in pygame.event.get():
-            if event.type == pygame.QUIT:
-                running = False
+        #game over logic
+        if game.gameOver:
+            if game.turn == "blue":
+                displayText(screen, "Blue wins! R to restart")
+            else:
+                displayText(screen, "White wins! R to restart")
 
-            elif event.type == pygame.MOUSEBUTTONDOWN:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        start_game()
 
-                '''displayText(screen);'''
 
 
-                if event.button == 1:  # Left mouse button
-                    
-                    mouse_pos = pygame.mouse.get_pos()
-                    selected_hex = return_selected_hex(screen, mouse_pos)
-                    
-                    if selected_hex:
-                        hexagon = board.find_hex_from_coordinates(selected_hex[0], selected_hex[1], -selected_hex[0]-selected_hex[1])
-                        if hexagon:
-                            print("Hexagon type:", hexagon.hextype)
-                            board.remove_hex(selected_hex[0], selected_hex[1], -selected_hex[0]-selected_hex[1])
-                            draw_board(screen, board)
+        else: #turn display
+            if game.turn == "blue":
+                displayText(screen, "Blue's turn")
+            if game.turn == "white":
+                displayText(screen, "White's turn")
+        
+            
+            #event handling
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    running = False
+                elif event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_r:
+                        start_game()
 
-            elif event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_r:
-                    
-                    start_penguins(screen)
+
+                elif event.type == pygame.MOUSEBUTTONDOWN:
+
+                    if event.button == 1:  # Left mouse button
+                        
+                        mouse_pos = pygame.mouse.get_pos()
+                        selected_hex = return_selected_hex(screen, mouse_pos)
+                        
+                        if selected_hex:
+                            hexagon = board.find_hex_from_coordinates(selected_hex[0], selected_hex[1], -selected_hex[0]-selected_hex[1])
+                            if hexagon and hexagon.hextype == game.turn:
+                                board.remove_hex(selected_hex[0], selected_hex[1], -selected_hex[0]-selected_hex[1])
+                                draw_board(screen, board)
+
+                                if not board.penguinOnBoard():
+                                    game.gameOver = True
+
+                                print (game.turn)
+
+                                if game.turn == "blue":
+                                    game.turn = "white"
+                                else:
+                                    game.turn = "blue"
+
+
+
     pygame.quit()
 
 
@@ -133,6 +165,6 @@ def start_game():
     pygame.display.set_caption('Hexagonal Grid')
 
     gameBoard = start_penguins(screen)
-    gameLogic = Game(gameBoard)
+    game = Game(gameBoard)
 
-    run_loop(screen, gameBoard)
+    run_loop(screen, gameBoard, game)
